@@ -14,7 +14,7 @@ image_count = 0
 last_index = 0
 last_colmuns = 0
 
-Dir.foreach(parent) do |item|
+Dir.foreach(parent).sort.each do |item|
   
   begin
     img = ImageList.new(parent + item).first
@@ -60,9 +60,10 @@ while str = STDIN.gets
 end
 
 loop do
-  image_no = (((Time.now.to_f * 1000) / 100) % image_count ).to_i
-  puts image_no.to_s
+  image_no = (((Time.now.to_f * 1000) / 50) % image_count ).to_i
+#  puts image_no.to_s
   g0 = STICK.get_accel().map { |a| a * 8.0 / 0x8000 }
   line = image_no * 16 + g0[1].to_i + 8
   STICK.show_line(line)
+  puts"image No.:#{image_no}, line:#{g0[1].to_i+8}"
 end
