@@ -10,6 +10,7 @@ STICK.stop_led_demo
 
 parent = '../images/anime2/'
 i = 0
+image_count = 0
 last_index = 0
 last_colmuns = 0
 
@@ -40,11 +41,11 @@ Dir.each_child(parent) do |item|
       STICK.write_line(i, line)
       i+=1
     end
+    image_count+=1
   rescue
     next
   end
 end
-
 STICK.write_end
 
 puts 'continue to show? (y/n/exit)'
@@ -59,7 +60,7 @@ while str = STDIN.gets
 end
 
 loop do
-  image_no = (((Time.now.to_f * 1000) / 100) % 80 ).to_i
+  image_no = (((Time.now.to_f * 1000) / 100) % image_count ).to_i
   puts image_no.to_s
   g0 = STICK.get_accel().map { |a| a * 8.0 / 0x8000 }
   line = image_no * 16 + g0[1].to_i + 8
