@@ -73,7 +73,7 @@ class StickSdk
     INTERNAL_STICK_SDK.stop_led_demo()
   end
   def write_line(line, pattern)
-    INTERNAL_STICK_SDK.write_line(line, pattern.pack('C*'))
+    INTERNAL_STICK_SDK.write_line(line, pattern.map {|p| p/(85.0*256)}.pack('C*'))
   end
   def write_end()
   end
