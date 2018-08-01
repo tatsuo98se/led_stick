@@ -52,13 +52,16 @@ class IStickSdk
 
   end
   def show_line(line)
+    sleep(0.01)
     puts "show_line(#{line})"
   end
   def get_accel()
     puts "get_accel()"
+    return [0,0,0]
   end
   def get_gyro()
     puts "get_gyro()"
+    return [0,0,0]
   end
 end
 

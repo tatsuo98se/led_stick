@@ -10,10 +10,25 @@ STICK.stop_led_demo
 
 parent = '../images/anime2/'
 i = 0
+last_index = 0
+last_colmuns = 0
+
 Dir.each_child(parent) do |item|
   
   begin
     img = ImageList.new(parent + item).first
+    if last_colmuns == 0 then
+      last_colmuns = img.columns
+    elsif last_colmuns != img.columns
+      raise ArgumentError.new
+    end
+    if last_index == 0 then
+      last_index = (1364 / img.columns) * img.columns
+    end
+    if i + last_colmuns > last_index then
+      break
+    end
+    puts parent + item
 
     img.columns.times do |x|
       line = []
@@ -34,17 +49,19 @@ STICK.write_end
 
 puts 'continue to show? (y/n/exit)'
 while str = STDIN.gets
-    case str.chomp
-    when 'exit', 'n'
-        exit 0
-    when 'y'
-        break
-    else
-    end
+  case str.chomp
+  when 'exit', 'n'
+      exit 0
+  when 'y'
+      break
+  else
+  end
 end
 
 loop do
+  image_no = (((Time.now.to_f * 1000) / 100) % 80 ).to_i
+  puts image_no.to_s
   g0 = STICK.get_accel().map { |a| a * 8.0 / 0x8000 }
-  line = g0[1].to_i + 4
+  line = image_no * 16 + g0[1].to_i + 8
   STICK.show_line(line)
 end
