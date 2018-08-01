@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'RMagick'
+require 'rmagick'
 include Magick
 require_relative './stick_sdk'
 
@@ -13,7 +13,7 @@ i = 0
 last_index = 0
 last_colmuns = 0
 
-Dir.each_child(parent) do |item|
+Dir.foreach(parent) do |item|
   
   begin
     img = ImageList.new(parent + item).first
