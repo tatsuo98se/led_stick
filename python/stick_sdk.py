@@ -36,16 +36,14 @@ class LedStick(object):
         s_arr = [0 for i in range(3)]  
         a = carray(*s_arr)  
         self.stick.get_accel(a)
-        print(str(a))
-        return a
+        return (a[0],a[1],a[2])
 
     def get_gyro(self):
         carray = c_short * 3
         s_arr = [0 for i in range(3)]  
         g = carray(*s_arr)  
         self.stick.get_gyro(g)
-        print(str(g))
-        return g
+        return (g[0],g[1],g[2])
 
 class LedStickDummy(object):
     def __init__(self):
