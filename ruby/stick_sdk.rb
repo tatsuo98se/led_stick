@@ -93,8 +93,6 @@ STICK =  IStickSdk.new
 
 if load_error || INTERNAL_STICK_SDK.init_sdk.zero?
   puts 'failed to init SDK. return dummy IF.'
-  return
+else
+  STICK = StickSdk.new
 end
-
-
-STICK = StickSdk.new
