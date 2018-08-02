@@ -16,4 +16,4 @@ STICK.write_line(7, [0xffffff for _ in range(32)])
 
 while True:
     g = STICK.get_accel()
-    STICK.show_line(1)
+    STICK.show_line(int(g[1]*8.0 / 0x8000)+4)
