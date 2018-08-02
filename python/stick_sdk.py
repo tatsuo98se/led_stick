@@ -23,9 +23,24 @@ class LedStick(object):
     def stop_led_demo(self):
         self.stick.stop_led_demo()
 
+    def __get_led_rgb(self, c):
+        r = (c & 0xff0000) >> 16
+        g = (c & 0x00ff00) >> 8
+        b = (c & 0x0000ff)
+        return (int(round(r/85.0)),
+                int(round(g/85)),
+                int(round(b/85))),
+    
+    def __flatten_pattern(self, pattern):
+        flat = []
+        for p in pattern:
+            flat.extend(self.__get_led_rgb(p))
+        return flat
+
     def write_line(self, line, pattern):
-        carray = c_byte * len(pattern) 
-        cpattern = carray(*pattern) 
+        faltten = self.__flatten_pattern(pattern)
+        carray = c_byte * len(faltten) 
+        cpattern = carray(*faltten) 
         self.stick.write_line(line, cpattern)
 
     def show_line(self, line):
@@ -66,8 +81,6 @@ class LedStickDummy(object):
 
     def get_gyro(self, g):
         pass
-
-
 
 def create_led_stick(lib):
     try:
