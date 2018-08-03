@@ -16,10 +16,15 @@ btn_handler.handle_button_down do
   switch_state = true
 end
 
+STICK_MAX_LINE_INDEX=1364
+STICK.write_line(STICK_MAX_LINE_INDEX, [0]*96)
+
+
 loop do
   Dir.foreach(parent).sort.each do |childdir|
     next unless childdir.start_with? 'anime' 
 
+    
     i = 0
     image_count = 0
     last_index = 0
@@ -34,7 +39,7 @@ loop do
           raise ArgumentError.new
         end
         if last_index == 0 then
-          last_index = (1364 / img.columns) * img.columns
+          last_index = ((STICK_MAX_LINE_INDEX-1) / img.columns) * img.columns
         end
         if i + last_colmuns > last_index then
           break
@@ -59,9 +64,13 @@ loop do
     STICK.write_end
     while !switch_state do
       image_no = (((Time.now.to_f * 1000) / 50) % image_count ).to_i
-      g0 = STICK.get_accel().map { |a| a * 8.0 / 0x8000 }
-      line = image_no * 16 + g0[1].to_i + 8
-      STICK.show_line(line)
+      g0 = STICK.get_accel().map { |a| a * 10.0 / 0x8000 }
+      imageline = g0[1].to_i + 10
+      if imageline == 0 || imageline == 15 then
+        STICK.show_line(STICK_MAX_LINE_INDEX)
+      else
+        STICK.show_line(image_no * last_colmuns + imageline)
+      end
     end
     switch_state = false
   end
