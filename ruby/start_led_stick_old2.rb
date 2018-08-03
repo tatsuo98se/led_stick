@@ -21,29 +21,17 @@ STICK.write_line(STICK_MAX_LINE_INDEX, [0]*96)
 
 $g_cache = {}
 
+
 class CachedImage
   def initialize(filename)
     @basedir = File.join("./.cache/", File.basename(File.expand_path("..", filename)))
     @baseanme = File.basename(filename, '.png')
     @image = nil
     @cache = []
-    @cache_filename = File.join(@basedir,  @baseanme + '.txt')
+    @cache_key = File.join(@basedir,  @baseanme + '.txt')
 
-    if $g_cache.has_key? @cache_filename
-      @cache = $g_cache[@cache_filename]
-    elsif File.exist? @cache_filename then
-      # use cache
-      File.open(@cache_filename) do |f|
-        loop do
-          begin
-            a = f.readline.strip
-            a = a.split ','
-            @cache << a.map {|e| e.to_i}
-          rescue EOFError
-            break
-          end
-        end
-      end
+    if $g_cache.has_key? @cache_key then
+      @cache = $g_cache[@cache_key]
     else
       @image = ImageList.new(filename).first
       @image.columns.times do |x|
@@ -55,25 +43,12 @@ class CachedImage
         end
         @cache << line
       end
-
-      unless File.exist? @basedir then
-        Dir.mkdir @basedir
-      end
-      File.open(@cache_filename, 'w') do |f|
-        @cache.each do |line|
-          line.each do |e|
-            f.write e
-            f.write ','
-          end
-          f.write "\n"
-        end
-      end
+      $g_cache[@cache_key] = @cache
     end
-    $g_cache[@cache_filename] = @cache
   end
 
   def cache?
-    File.exist? @cache_filename
+    $g_cache.has_key? @cache_key
   end
 
   def width
@@ -106,23 +81,24 @@ loop do
     i = 0
     image_count = 0
     last_index = 0
-    image_size =[0,0]
+    last_colmuns = 0
 
     start = (Time.now.to_f * 1000) ##
     Dir.foreach(File.join(parent, childdir)).sort.each do |item|
       begin
         img = CachedImage.new(File.join(parent, childdir, item))
-        if image_size == [0,0] then
-          image_size  = [img.columns, img.rows]
-        elsif image_size != [img.columns, img.rows]
+        if last_colmuns == 0 then
+          last_colmuns = img.columns
+        elsif last_colmuns != img.columns
           raise ArgumentError.new
         end
         if last_index == 0 then
           last_index = ((STICK_MAX_LINE_INDEX-1) / img.columns) * img.columns
         end
-        if i + img.columns > last_index then
+        if i + last_colmuns > last_index then
           break
         end
+        puts parent + item
     
         img.eachline do |line|
           STICK.write_line(i, line)
@@ -146,7 +122,7 @@ loop do
       if imageline <= 0 || imageline >= 19 then
         STICK.show_line(STICK_MAX_LINE_INDEX)
       else
-        STICK.show_line(image_no * image_size[1] + imageline - 1)
+        STICK.show_line(image_no * last_colmuns + imageline - 1)
       end
     end
     switch_state = false
