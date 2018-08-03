@@ -138,7 +138,7 @@ loop do
     end
     STICK.write_end
     span = (Time.now.to_f * 1000) - start ##
-    puts "childdir:#{span.to_s}" #, cache:#{img.cache?}"
+    puts "childdir:#{span.to_s}"
     while !switch_state do
       image_no = (((Time.now.to_f * 1000) / 50) % image_count ).to_i
       g0 = STICK.get_accel().map { |a| a * 10.0 / 0x8000 }
