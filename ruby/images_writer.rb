@@ -35,7 +35,7 @@ class CachedImage
           begin
             a = f.readline.strip
             a = a.split ','
-            cache << a
+            @cache << a.map {|e| e.to_i}
           rescue EOFError
             break
           end
@@ -66,6 +66,10 @@ class CachedImage
         end
       end
     end
+  end
+
+  def cache?
+    File.exist? @cache_filename
   end
 
   def width
@@ -101,6 +105,7 @@ loop do
     last_colmuns = 0
 
     Dir.foreach(File.join(parent, childdir)).sort.each do |item|
+      start = (Time.now.to_f * 1000) ##
       begin
         img = CachedImage.new(File.join(parent, childdir, item))
         if last_colmuns == 0 then
@@ -121,9 +126,13 @@ loop do
           i+=1
         end
         image_count+=1
+        span = (Time.now.to_f * 1000) - start ##
+        puts "childdir:#{span.to_s}" #, cache:#{img.cache?}"
+      rescue Magick::ImageMagickError
+        next
       rescue => e
         p e
-        next
+        raise e
       end
     end
     STICK.write_end
