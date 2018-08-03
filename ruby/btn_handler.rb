@@ -20,8 +20,8 @@ class ButtonHandler
         current_state = BCM.bcm2835_gpio_lev(17)
         if @last_state != current_state && current_state == 1 then
           yield
-	end
-	@last_state = current_state
+	      end
+        @last_state = current_state
         sleep(0.3)
       end
     }
