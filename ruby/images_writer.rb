@@ -102,32 +102,29 @@ loop do
     i = 0
     image_count = 0
     last_index = 0
-    last_colmuns = 0
+    image_size =[0,0]
 
+    start = (Time.now.to_f * 1000) ##
     Dir.foreach(File.join(parent, childdir)).sort.each do |item|
-      start = (Time.now.to_f * 1000) ##
       begin
         img = CachedImage.new(File.join(parent, childdir, item))
-        if last_colmuns == 0 then
-          last_colmuns = img.columns
-        elsif last_colmuns != img.columns
+        if image_size == [0,0] then
+          image_size  = [img.columns, img.rows]
+        elsif image_size != [img.columns, img.rows]
           raise ArgumentError.new
         end
         if last_index == 0 then
           last_index = ((STICK_MAX_LINE_INDEX-1) / img.columns) * img.columns
         end
-        if i + last_colmuns > last_index then
+        if i + img.columns > last_index then
           break
         end
-        puts parent + item
     
         img.eachline do |line|
           STICK.write_line(i, line)
           i+=1
         end
         image_count+=1
-        span = (Time.now.to_f * 1000) - start ##
-        puts "childdir:#{span.to_s}" #, cache:#{img.cache?}"
       rescue Magick::ImageMagickError
         next
       rescue => e
@@ -136,6 +133,8 @@ loop do
       end
     end
     STICK.write_end
+    span = (Time.now.to_f * 1000) - start ##
+    puts "childdir:#{span.to_s}" #, cache:#{img.cache?}"
     while !switch_state do
       image_no = (((Time.now.to_f * 1000) / 50) % image_count ).to_i
       g0 = STICK.get_accel().map { |a| a * 10.0 / 0x8000 }
@@ -143,7 +142,7 @@ loop do
       if imageline <= 0 || imageline >= 19 then
         STICK.show_line(STICK_MAX_LINE_INDEX)
       else
-        STICK.show_line(image_no * last_colmuns + imageline - 1)
+        STICK.show_line(image_no * image_size[1] + imageline - 1)
       end
     end
     switch_state = false
