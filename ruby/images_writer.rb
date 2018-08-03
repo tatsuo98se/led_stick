@@ -20,10 +20,80 @@ STICK_MAX_LINE_INDEX=1364
 STICK.write_line(STICK_MAX_LINE_INDEX, [0]*96)
 
 
+class CachedImage
+  def initialize(filename)
+    @basedir = File.join("./.cache/", File.basename(File.expand_path("..", filename)))
+    @baseanme = File.basename(filename, '.png')
+    @image = nil
+    @cache = []
+    @cache_filename = File.join(@basedir,  @baseanme + '.txt')
+
+    if File.exist? @cache_filename then
+      # use cache
+      File.open(@cache_filename) do |f|
+        loop do
+          begin
+            a = f.readline.strip
+            a = a.split ','
+            cache << a
+          rescue EOFError
+            break
+          end
+        end
+      end
+    else
+      @image = ImageList.new(filename).first
+      @image.columns.times do |x|
+        line = []
+        img_line = @image.get_pixels(x, 0, 1, @image.rows)
+        img_line.each_with_index do |p, y|
+          p  = @image.pixel_color(x, y)
+          line << p.red << p.green << p.blue
+        end
+        @cache << line
+      end
+
+      unless File.exist? @basedir then
+        Dir.mkdir @basedir
+      end
+      File.open(@cache_filename, 'w') do |f|
+        @cache.each do |line|
+          line.each do |e|
+            f.write e
+            f.write ','
+          end
+          f.write "\n"
+        end
+      end
+    end
+  end
+
+  def width
+    @cache[0].length
+  end
+
+  def columns
+    return self.width
+  end
+
+  def height
+    @cache.length
+  end
+
+  def rows
+    return self.height
+  end
+
+  def eachline
+    @cache.each do |line|
+      yield line
+    end
+  end
+end
+
 loop do
   Dir.foreach(parent).sort.each do |childdir|
     next unless childdir.start_with? 'anime' 
-
     
     i = 0
     image_count = 0
@@ -32,7 +102,7 @@ loop do
 
     Dir.foreach(File.join(parent, childdir)).sort.each do |item|
       begin
-        img = ImageList.new(File.join(parent, childdir, item)).first
+        img = CachedImage.new(File.join(parent, childdir, item))
         if last_colmuns == 0 then
           last_colmuns = img.columns
         elsif last_colmuns != img.columns
@@ -46,18 +116,13 @@ loop do
         end
         puts parent + item
     
-        img.columns.times do |x|
-          line = []
-          img_line = img.get_pixels(x, 0, 1, img.rows)
-          img_line.each_with_index do |p, y|
-            p  = img.pixel_color(x, y)
-            line << p.red << p.green << p.blue
-          end
+        img.eachline do |line|
           STICK.write_line(i, line)
           i+=1
         end
         image_count+=1
-      rescue
+      rescue => e
+        p e
         next
       end
     end

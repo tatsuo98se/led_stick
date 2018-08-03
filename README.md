@@ -1,3 +1,9 @@
+# Setup
+
+sudo apt-get install imagemagick libmagickwand-dev
+sudo apt-get install ruby-dev
+
+
 # LED STICK SDK
 
 ## ディレクトリ構成

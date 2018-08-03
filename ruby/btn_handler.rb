@@ -1,4 +1,9 @@
-require_relative './bcm2835'
+begin
+  require_relative './bcm2835'
+rescue Fiddle::DLError
+  puts 'failed loading bcm2835.'
+end
+
 class ButtonHandler
 
   def initializer
@@ -11,7 +16,7 @@ class ButtonHandler
     @t = Thread.new{
       if BCM.bcm2835_init.zero?
         puts 'failed to init bcm2835'
-        exit 1
+        raise RuntimeError
       end
       BCM.bcm2835_gpio_fsel(17, 0)
       BCM.bcm2835_gpio_set_pud(17, 1)
