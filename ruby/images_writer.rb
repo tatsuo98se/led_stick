@@ -48,7 +48,6 @@ Dir.foreach(parent).sort.each do |item|
 end
 STICK.write_end
 
-puts 'continue to show? (y/n/exit)'
 while str = STDIN.gets
   case str.chomp
   when 'exit', 'n'
@@ -61,9 +60,7 @@ end
 
 loop do
   image_no = (((Time.now.to_f * 1000) / 50) % image_count ).to_i
-#  puts image_no.to_s
   g0 = STICK.get_accel().map { |a| a * 8.0 / 0x8000 }
   line = image_no * 16 + g0[1].to_i + 8
   STICK.show_line(line)
-  puts"image No.:#{image_no}, line:#{g0[1].to_i+8}"
 end
