@@ -65,8 +65,8 @@ loop do
     while !switch_state do
       image_no = (((Time.now.to_f * 1000) / 50) % image_count ).to_i
       g0 = STICK.get_accel().map { |a| a * 10.0 / 0x8000 }
-      imageline = g0[1].to_i + 10
-      if imageline == 0 || imageline == 19 then
+      imageline = 19 - (g0[1].to_i - 10)
+      if imageline =< 0 || imageline => 19 then
         STICK.show_line(STICK_MAX_LINE_INDEX)
       else
         STICK.show_line(image_no * last_colmuns + imageline - 1)
