@@ -13,11 +13,13 @@ parent = os.path.abspath(\
 
 switch_state = False
 
-def btn_handler():
+def myhandler(test):
+    print('switch on')
+    global switch_state
     switch_state = True
 
 btn_handler = btn.ButtonHandler()
-btn_handler.handle_button_down(btn_handler)
+btn_handler.handle_button_down(myhandler)
 
 STICK_MAX_LINE_INDEX = 1364
 STICK.write_line(STICK_MAX_LINE_INDEX, [[0,0,0] for _ in range(32)])
@@ -62,6 +64,7 @@ class CachedImage:
 
 while True:
     dirs = glob(os.path.join(parent, '*'))
+    dirs.sort()
     for d in dirs:
         if not os.path.basename(d).startswith('anime'):
             continue
@@ -73,6 +76,7 @@ while True:
 
         images = glob(os.path.join(d, '*'))
         images.sort()
+        print('loading image..' + str(d))
         for image in images:
             cimg = CachedImage(image)
 
@@ -91,17 +95,18 @@ while True:
                 STICK.write_line(i, line)
                 i += 1
             image_count += 1
+        
+        print('complete loading')
+        switch_state = False
+        while not switch_state:
+            image_no = int(((time.time() * 1000) / 50) % image_count )
+            g0 = [(a*10.0/0x8000) for a in STICK.get_accel()]
 
-    while not switch_state:
-        image_no = int(((time.time() * 1000) / 50) % image_count )
-        g0 = [(a*10.0/0x8000) for a in STICK.get_accel()]
-
-        imageline = 19 - (int(g0[1]) + 10)
-        if imageline <= 0 or imageline >= 19:
-            STICK.show_line(STICK_MAX_LINE_INDEX)
-        else:
-            STICK.show_line(image_no * image_size[1] + imageline - 1)
-    switch_state = False
+            imageline = 19 - (int(g0[1]) + 10)
+            if imageline <= 0 or imageline >= 19:
+                STICK.show_line(STICK_MAX_LINE_INDEX)
+            else:
+                STICK.show_line(image_no * image_size[1] + imageline - 1)
 
 
           
