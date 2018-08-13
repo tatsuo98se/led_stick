@@ -33,8 +33,8 @@ class LedStick(object):
     
     def _flatten_pattern(self, pattern):
         flat = []
-        for p in pattern:
-            flat.extend(self._get_led_rgb(p))
+        for pixel in pattern:
+            flat.extend([int(p / (85.0)) for p in pixel])
         return flat
 
     def write_line(self, line, pattern):
