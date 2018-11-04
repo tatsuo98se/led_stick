@@ -7,9 +7,18 @@ import time
 
 STICK.init_sdk()
 STICK.stop_led_demo()
+
+
+target = "../animations"
+
+args = sys.argv
+
+if len(args) == 2:
+    target = args[1]
+
 parent = os.path.abspath(\
-  os.path.join(\
-    os.path.abspath(__file__), '..', '..', 'animations'))
+      os.path.join(\
+        os.path.abspath(__file__), "..", target))
 
 switch_state = False
 
@@ -34,7 +43,9 @@ class CachedImage:
         self.cache = g_cache[filename]
     else:
         im = Image.open(filename)
-        rgb_im = im.convert('RGB')
+        scale = 32.0 / im.size[1] 
+        im_resize = im.resize((im.size[0]*scale,32))
+        rgb_im = im_resize.convert('RGB')
         size = rgb_im.size
         for x in range(size[0]):
             line = []
@@ -66,7 +77,7 @@ while True:
     dirs = glob(os.path.join(parent, '*'))
     dirs.sort()
     for d in dirs:
-        if not os.path.basename(d).startswith('anime'):
+        if not os.path.basename(d).startswith('data'):
             continue
 
         i = 0
