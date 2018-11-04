@@ -4,12 +4,13 @@ import btn_handler as btn
 from glob import glob
 import os
 import time
+import sys
 
 STICK.init_sdk()
 STICK.stop_led_demo()
 
 
-target = "../animations"
+target = "../assets/anime1"
 
 args = sys.argv
 
@@ -19,6 +20,8 @@ if len(args) == 2:
 parent = os.path.abspath(\
       os.path.join(\
         os.path.abspath(__file__), "..", target))
+
+print(parent)
 
 switch_state = False
 
@@ -44,7 +47,7 @@ class CachedImage:
     else:
         im = Image.open(filename)
         scale = 32.0 / im.size[1] 
-        im_resize = im.resize((im.size[0]*scale,32))
+        im_resize = im.resize((int(im.size[0]*scale+0.5),32))
         rgb_im = im_resize.convert('RGB')
         size = rgb_im.size
         for x in range(size[0]):
